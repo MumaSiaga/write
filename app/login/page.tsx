@@ -70,7 +70,7 @@ if (checking) {
         <div className="bg-white rounded-xl shadow-sm border border-[#dee5dc] overflow-hidden flex flex-col md:flex-row min-h-[500px]">
 
           {/* Left Image for desktop */}
-          <div className="hidden md:block md:w-1/2 relative">
+          <div className="hidden md:block md:w-1/2 relative min-h-[300px] md:min-h-[500px]">
             <img
               alt="Serene workspace with an open notebook and pen"
               src="/Images/loginimage.jpg"
