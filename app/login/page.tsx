@@ -82,9 +82,11 @@ if (checking) {
           {/* Right Form */}
           <div className="w-full md:w-1/2 p-8 md:p-16 flex flex-col justify-center">
             <div className="text-center md:text-left mb-8">
+                <img src="Images/notebook.svg" alt="notebook image" className="my-4 block md:hidden w-24 h-24 mx-auto text-[#8fa382]" />
               <h2 className="text-black text-3xl font-bold tracking-tight">
                 Welcome
               </h2>
+              
               <p className="text-gray-400 text-base mt-2">
                 Sign in to your workspace
               </p>
