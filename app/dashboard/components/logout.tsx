@@ -12,8 +12,23 @@ export default function LogoutButton() {
   };
 
   return (
-    <button onClick={logout}>
-      Logout
-    </button>
+<button
+  onClick={logout}
+  className="
+    w-full
+    px-4 py-2
+    rounded-lg
+    text-sm font-medium
+    text-black
+    bg-blue-100
+    hover:bg-red-50
+    dark:text-white-400
+    dark:hover:bg-blue-900/20
+    transition-colors
+  "
+>
+  Logout
+</button>
+
   );
 }

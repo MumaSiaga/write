@@ -4,31 +4,36 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { User } from "@supabase/supabase-js";
+import Sidebar from "./sidebar";
+import Editor from "./Editor";
+
 
 export default function DashboardClient() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
+  const [mobileView, setMobileView] = useState<'sidebar' | 'editor'>('sidebar')
 
-  useEffect(() => {
+
+ useEffect(() => {
   let mounted = true;
+  let timeoutId: NodeJS.Timeout;
 
   supabase.auth.getSession().then(({ data }) => {
     if (!mounted) return;
 
-    if (data.session) {
-      setUser(data.session.user);
-    } else {
+    if (!data.session) {
       router.replace("/login");
+      return;
     }
 
-    // Add a tiny delay (e.g., 1 second) before hiding the loading screen
-    setTimeout(() => {
+    setUser(data.session.user);
+
+    timeoutId = setTimeout(() => {
       if (mounted) setLoading(false);
-    }, 1000); // 1000ms = 1 second
+    }, 1000);
   });
 
-  // Listen to auth changes
   const {
     data: { subscription },
   } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -43,9 +48,11 @@ export default function DashboardClient() {
 
   return () => {
     mounted = false;
+    clearTimeout(timeoutId);
     subscription.unsubscribe();
   };
 }, [router]);
+
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -66,17 +73,28 @@ export default function DashboardClient() {
   );
   }
 
-  return (
-    <div className="p-8">
-      <h1 className="text-3xl font-bold mb-4">
-        Welcome, {user?.email || "User"}!
-      </h1>
-      <button
-        onClick={handleLogout}
-        className="px-6 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+ return (
+    <div className="flex h-screen overflow-hidden">
+      {/* Sidebar */}
+      <div
+        className={`
+          md:block
+          ${mobileView === 'sidebar' ? 'block' : 'hidden'}
+        `}
       >
-        Logout
-      </button>
+        <Sidebar onOpenEditor={() => setMobileView('editor')} />
+      </div>
+
+      {/* Editor */}
+      <div
+        className={`
+          flex-1
+          md:block
+          ${mobileView === 'editor' ? 'block' : 'hidden'}
+        `}
+      >
+        <Editor onBackToSidebar={() => setMobileView('sidebar')} />
+      </div>
     </div>
-  );
+  )
 }
