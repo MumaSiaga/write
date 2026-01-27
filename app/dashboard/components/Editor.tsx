@@ -1,7 +1,64 @@
+import { useEffect, useState,useRef } from "react";
+import { supabase } from "@/lib/supabaseClient";
+
 type EditorProps = {
-  onBackToSidebar?: () => void
-}
-export default function Editor({ onBackToSidebar }: EditorProps) {
+  noteId: string; 
+  onBackToSidebar?: () => void;
+};
+export default function Editor({ noteId, onBackToSidebar }: EditorProps) {
+    const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [saved, setSaved] = useState(false);
+
+  const titleRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  // Load note on mount
+  useEffect(() => {
+    const fetchNote = async () => {
+      const { data, error } = await supabase
+        .from("Notes")
+        .select("*")
+        .eq("id", noteId)
+        .single();
+
+      if (error) {
+        console.error("Failed to load note:", error.message);
+        return;
+      }
+
+      setTitle(data.title || "");
+      setContent(data.content || "");
+      if (titleRef.current) titleRef.current.innerText = data.title || "Untitled Note";
+    if (contentRef.current) contentRef.current.innerText = data.content || "Start writing here...";
+    };
+
+    fetchNote();
+  }, [noteId]);
+
+  // Auto-save function
+  const handleSave = async () => {
+    if (!noteId) return;
+
+    const { data, error } = await supabase
+      .from("Notes")
+      .update({ title, content })
+      .eq("id", noteId);
+
+    if (error) {
+      console.error("Failed to save note:", error.message);
+    } else {
+      setSaved(true);
+      setTimeout(() => setSaved(false), 1500);
+    }
+  };
+
+  // Debounce auto-save
+  useEffect(() => {
+    const timer = setTimeout(() => handleSave(), 1000);
+    return () => clearTimeout(timer);
+  }, [title, content]);
+
   return (
     <main className="flex-1 flex flex-col relative bg-background-light dark:bg-background-dark overflow-y-auto">
       
@@ -28,50 +85,40 @@ export default function Editor({ onBackToSidebar }: EditorProps) {
         </header>
 
 
-      {/* Content Canvas */}
+       {/* Editor Content */}
       <div className="flex-1 flex flex-col items-center pt-12 pb-32 px-6">
         <article className="w-full max-w-[720px]">
           
           {/* Meta */}
           <div className="mb-10 opacity-60">
             <p className="text-sm italic mb-2">
-              Last edited: October 24, 2023
+              Last edited: {new Date().toLocaleDateString()}
             </p>
           </div>
 
-          {/* Title */}
           <h1
-            contentEditable
-            suppressContentEditableWarning
-            className="text-[#111418] dark:text-white text-5xl font-bold leading-tight mb-12 focus:outline-none"
-          >
-            Morning Reflections
-          </h1>
+          ref={titleRef}
+          contentEditable
+          suppressContentEditableWarning
+          className="text-5xl font-bold mb-12 focus:outline-none"
+          onInput={(e) =>
+            setTitle((e.currentTarget as HTMLDivElement).innerText)
+          }
+        >
+          {/* Set initial content once */}
+        </h1>
 
-          {/* Body */}
-          <div
-            contentEditable
-            suppressContentEditableWarning
-            className="text-[#111418] dark:text-gray-200 text-xl leading-[1.8] space-y-8 focus:outline-none min-h-[500px]"
-          >
-            <p>
-              The sun began to crest over the horizon, casting a soft, golden glow
-              across the room. It's in these quiet moments that the most profound
-              thoughts seem to emerge.
-            </p>
-
-            <p>
-              There is something restorative about writing without the pressure
-              of an audience.
-            </p>
-
-            <p>
-              Today's focus:
-              <br />1. Prioritizing deep work
-              <br />2. Spending time in nature
-              <br />3. Finalizing drafts
-            </p>
-          </div>
+        <div
+          ref={contentRef}
+          contentEditable
+          suppressContentEditableWarning
+          className="text-xl leading-[1.8] min-h-[500px] focus:outline-none"
+          onInput={(e) =>
+            setContent((e.currentTarget as HTMLDivElement).innerText)
+          }
+        >
+          {/* Set initial content once */}
+        </div>
         </article>
       </div>
 

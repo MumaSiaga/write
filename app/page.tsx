@@ -1,20 +1,8 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import { supabase } from "@/lib/supabaseClient";
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 
 export default function Home() {
-   const router = useRouter();
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) {
-        router.replace("/dashboard");
-      }
-    });
-  }, [router]);
   return (
     <div className="relative flex min-h-screen flex-col bg-[#fcfaf7]">
       <header className="w-full px-8 md:px-16 py-8">

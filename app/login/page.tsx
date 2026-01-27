@@ -1,52 +1,15 @@
 "use client";
 import { supabase } from "@/lib/supabaseClient";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function Login() {
-    const router = useRouter();
-    const [checking, setChecking] = useState(true);
-
-  useEffect(() => {
-    let mounted = true;
-
-    supabase.auth.getSession().then(({ data }) => {
-      if (!mounted) return;
-
-      if (data.session) {
-        router.replace("/dashboard");
-      } else {
-        setChecking(false);
-      }
-    });
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) {
-        router.replace("/dashboard");
-      }
-    });
-
-    return () => {
-      mounted = false;
-      subscription.unsubscribe();
-    };
-  }, [router]);
-
-if (checking) {
-  return (
-    <div className="min-h-screen bg-[#fcfaf7] flex items-center justify-center"></div>
-        
-  )
-}
-
+  // This component only triggers sign-in actions. Route protection and
+  // session checks are handled server-side in `requireUser()`.
   const handleGoogleSignIn = async () => {
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/dashboard`,
+        redirectTo: `${window.location.origin}/auth/callback`,
       },
     });
   };
