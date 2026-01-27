@@ -8,11 +8,29 @@ type EditorProps = {
 export default function Editor({ noteId, onBackToSidebar }: EditorProps) {
     const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const editorRef = useRef<HTMLDivElement>(null);
   const [saved, setSaved] = useState(false);
+  const [focusMode, setFocusMode] = useState(false);
 
   const titleRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const enterFocusMode = () => {
+  setFocusMode(true); // hide the button
 
+  if (editorRef.current && !document.fullscreenElement) {
+    editorRef.current.requestFullscreen().catch(console.error);
+  }
+};
+useEffect(() => {
+  const handleFullscreenChange = () => {
+    if (!document.fullscreenElement) {
+      setFocusMode(false); // exited fullscreen, show button again
+    }
+  };
+
+  document.addEventListener("fullscreenchange", handleFullscreenChange);
+  return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
+}, []);
   // Load note on mount
   useEffect(() => {
     const fetchNote = async () => {
@@ -83,7 +101,7 @@ export default function Editor({ noteId, onBackToSidebar }: EditorProps) {
 
 
        {/* Editor Content */}
-      <div className="flex-1 flex flex-col items-center pt-12 pb-32 px-6">
+      <div ref={editorRef} className="flex-1 flex flex-col items-center pt-12 pb-32 px-6">
         <article className="w-full max-w-[720px]">
           
           {/* Meta */}
@@ -118,16 +136,20 @@ export default function Editor({ noteId, onBackToSidebar }: EditorProps) {
         </div>
         </article>
       </div>
+      {!focusMode && (
+  <div className="fixed bottom-8 right-10 hidden md:block">
+    <button
+      onClick={enterFocusMode}
+      className="flex items-center gap-2 py-2 px-4 rounded-full bg-primary text-white shadow-md hover:bg-primary/90 transition"
+    >
+      <span className="material-symbols-outlined text-sm">fullscreen</span>
+      <span className="text-xs font-medium uppercase tracking-widest">
+        Focus Mode
+      </span>
+    </button>
+  </div>
+)}
 
-      {/* Floating Saved Indicator */}
-      <div className="fixed bottom-8 right-10 flex items-center gap-2 py-2 px-4 rounded-full bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border border-gray-100 dark:border-gray-700 shadow-sm">
-        <span className="material-symbols-outlined text-sage-green text-sm">
-          check_circle
-        </span>
-        <span className="text-xs font-medium text-gray-400 uppercase tracking-widest">
-          Saved
-        </span>
-      </div>
     </main>
   );
 }

@@ -71,7 +71,7 @@ useEffect(()=>{
 
       {/* New Note */}
       <div className="px-4 mb-4">
-        <button onClick={handleNewNote} className="w-full flex items-center justify-center gap-2 bg-primary text-black dark:text-white py-2.5 rounded-lg font-medium hover:bg-primary/90 transition-all shadow-sm">
+        <button  onClick={handleNewNote} className="w-full flex items-center justify-center gap-2 cursor-pointer dark:border-white border-black bg-primary text-black dark:text-white py-2.5 rounded-lg font-medium hover:bg-primary/90 transition-all shadow-sm">
           <span className="material-symbols-outlined text-sm">add</span>
           <span className="text-sm">New Note</span>
         </button>

@@ -19,11 +19,11 @@ export default function LogoutButton() {
     px-4 py-2
     rounded-lg
     text-sm font-medium
+    cursor-pointer
     text-black
-    bg-blue-100
-    hover:bg-red-50
-    dark:text-white-400
-    dark:hover:bg-blue-900/20
+    bg-[#8fa382]
+    dark:text-white
+    dark:bg-black
     transition-colors
   "
 >
