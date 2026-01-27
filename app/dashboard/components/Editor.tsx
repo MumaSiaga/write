@@ -42,7 +42,7 @@ export default function Editor({ noteId, onBackToSidebar }: EditorProps) {
 
     const { data, error } = await supabase
       .from("Notes")
-      .update({ title, content })
+      .update({ title, content, updated_at: new Date().toISOString() })
       .eq("id", noteId);
 
     if (error) {
@@ -63,7 +63,7 @@ export default function Editor({ noteId, onBackToSidebar }: EditorProps) {
     <main className="flex-1 flex flex-col relative bg-background-light dark:bg-background-dark overflow-y-auto">
       
       {/* Top Bar */}
-      <header className="h-16 flex items-center justify-between px-6 md:px-10 sticky top-0 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md z-10">
+      <header className="top-2 h-16 flex items-center justify-between px-6 md:px-10 sticky top-0 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md z-10">
   
         {/* Back button – mobile only */}
         <button
@@ -74,10 +74,7 @@ export default function Editor({ noteId, onBackToSidebar }: EditorProps) {
         </button>
 
         {/* Right actions */}
-        <div className="flex items-center gap-6">
-            <button className="text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors">
-            <span className="material-symbols-outlined">share</span>
-            </button>
+        <div className="flex items-center gap-6 ml-auto">
             <button className="text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors">
             <span className="material-symbols-outlined">more_horiz</span>
             </button>

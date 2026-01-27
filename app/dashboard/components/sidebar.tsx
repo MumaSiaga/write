@@ -8,6 +8,7 @@ type Note = {
   id: string;
   title: string;
   created_at: string;
+  updated_at: string;
 };
 
 type SidebarProps = {
@@ -31,7 +32,7 @@ const handlefetchNotes = async ()=>{
   const {data,error}=await supabase
   .from("Notes")
   .select("*")
-  .order("created_at",{ascending:false});
+  .order("updated_at",{ascending:false});
   if(!error && data){
     setNotes(data);
   }
@@ -63,14 +64,14 @@ useEffect(()=>{
           <h2 className="text-xl font-bold tracking-tight">Write</h2>
         </div>
 
-        <button className="text-gray-400 hover:text-primary transition-colors">
-          <span className="material-symbols-outlined">view_sidebar</span>
+        <button className="text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors">
+        <span className="material-symbols-outlined">more_horiz</span>
         </button>
       </div>
 
       {/* New Note */}
       <div className="px-4 mb-4">
-        <button onClick={handleNewNote} className="w-full flex items-center justify-center gap-2 bg-primary text-white py-2.5 rounded-lg font-medium hover:bg-primary/90 transition-all shadow-sm">
+        <button onClick={handleNewNote} className="w-full flex items-center justify-center gap-2 bg-primary text-black dark:text-white py-2.5 rounded-lg font-medium hover:bg-primary/90 transition-all shadow-sm">
           <span className="material-symbols-outlined text-sm">add</span>
           <span className="text-sm">New Note</span>
         </button>
