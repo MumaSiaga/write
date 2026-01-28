@@ -2,18 +2,19 @@ import { useEffect, useState,useRef } from "react";
 import { supabase } from "@/lib/supabaseClient";
 
 type EditorProps = {
-  noteId: string; 
+  noteId: string;
   onBackToSidebar?: () => void;
+  onNoteDeleted?: () => void; 
 };
-export default function Editor({ noteId, onBackToSidebar }: EditorProps) {
-    const [title, setTitle] = useState("");
+export default function Editor({ noteId, onBackToSidebar, onNoteDeleted }: EditorProps) {
+  const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const editorRef = useRef<HTMLDivElement>(null);
   const [saved, setSaved] = useState(false);
   const [focusMode, setFocusMode] = useState(false);
-
   const titleRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const [showMenu, setShowMenu] = useState(false);
   const enterFocusMode = () => {
   setFocusMode(true); // hide the button
 
@@ -77,6 +78,27 @@ useEffect(() => {
     return () => clearTimeout(timer);
   }, [title, content]);
 
+ const handleDelete = async () => {
+  const ok = confirm("Are you sure you want to delete this note?");
+  if (!ok) return;
+
+  const { error } = await supabase
+    .from("Notes")
+    .delete()
+    .eq("id", noteId);
+
+  if (error) {
+    console.error("Failed to delete note:", error.message);
+    return;
+  }
+
+  // close menu
+  setShowMenu(false);
+
+  // tell parent to reset editor + refetch notes
+  onNoteDeleted?.();
+};
+
   return (
     <main className="flex-1 flex flex-col relative bg-background-light dark:bg-background-dark overflow-y-auto">
       
@@ -93,9 +115,25 @@ useEffect(() => {
 
         {/* Right actions */}
         <div className="flex items-center gap-6 ml-auto">
-            <button className="text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors">
+          <div className="relative">
+          <button
+            onClick={() => setShowMenu((v) => !v)}
+            className="text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors"
+          >
             <span className="material-symbols-outlined">more_horiz</span>
-            </button>
+          </button>
+
+          {showMenu && (
+            <div className="absolute right-0 mt-2 w-40 rounded-lg bg-white dark:bg-neutral-900 shadow-lg border border-gray-200 dark:border-neutral-700 z-20">
+              <button
+                onClick={handleDelete}
+                className="w-full px-4 py-2 text-left text-sm rounded-lg cursor-pointer dark:text-white text-black"
+              >
+              Delete note
+              </button>
+            </div>
+          )}
+        </div>
         </div>
         </header>
 

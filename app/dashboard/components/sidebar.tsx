@@ -1,7 +1,7 @@
 "use client";
-import { use, useEffect, useState } from "react";
+
 import Logout from "./logout";
-import { supabase } from "@/lib/supabaseClient";
+import { useState } from "react";
 
 
 type Note = {
@@ -14,34 +14,15 @@ type Note = {
 type SidebarProps = {
   notes: Note[];
   onOpenEditor?: (id: string) => void;
+  onCreateNote?: () => void;
+  onDeleteMany?: (ids: string[]) => void;
 };
 
-export default function Sidebar({ notes: initialNotes, onOpenEditor }: SidebarProps) {
-  const [notes, setNotes] = useState<Note[]>(initialNotes);
-  const handleNewNote = async () => {
-  const { data, error } = await supabase
-    .from("Notes")
-    .insert([{ title: "Untitled Note", content: "" }])
-    .select();
 
-  if (!error && data) {
-    setNotes((prev) => [data[0], ...prev]); // prepend new note
-  }
-};
-const handlefetchNotes = async ()=>{
-  const {data,error}=await supabase
-  .from("Notes")
-  .select("*")
-  .order("updated_at",{ascending:false});
-  if(!error && data){
-    setNotes(data);
-  }
-}
-useEffect(()=>{
-  handlefetchNotes();
-},[]);
-
-
+export default function Sidebar({ notes, onOpenEditor, onCreateNote, onDeleteMany }: SidebarProps) {
+const [menuOpen, setMenuOpen] = useState(false);
+const [selectMode, setSelectMode] = useState(false);
+const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   return (
     <aside className="min-h-screen
@@ -64,18 +45,59 @@ useEffect(()=>{
           <h2 className="text-xl font-bold tracking-tight">Write</h2>
         </div>
 
-        <button className="text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors">
-        <span className="material-symbols-outlined">more_horiz</span>
+        
+        <div className="relative">
+        <button
+          onClick={() => {
+            if (selectMode) {
+              setSelectMode(false); // exit select mode
+              setSelectedIds(new Set());
+            } else {
+              setMenuOpen((v) => !v); // open dropdown
+            }
+          }}
+          className="text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors"
+        >
+          <span className="material-symbols-outlined">
+            {selectMode ? "check" : "more_horiz"}
+          </span>
         </button>
+
+        {/* Only show dropdown if not in select mode */}
+        {!selectMode && menuOpen && (
+          <div className="absolute right-0 mt-2 w-40 rounded-lg bg-white dark:bg-neutral-900 shadow-lg border border-gray-200 dark:border-neutral-700 z-20">
+            
+            {/* Select Mode Toggle */}
+            <button
+              onClick={() => {
+                setSelectMode(true);
+                setMenuOpen(false);
+              }}
+              className="w-full px-4 py-2 text-left text-sm rounded-lg cursor-pointer dark:text-white text-black"
+            >
+              Select
+            </button>
+
+            {/* Logout */}
+            <div className="px-4 py-2">
+              <Logout />
+            </div>
+          </div>
+        )}
+        </div>
       </div>
+
+
+
 
       {/* New Note */}
       <div className="px-4 mb-4">
-        <button  onClick={handleNewNote} className="w-full flex items-center justify-center gap-2 cursor-pointer dark:border-white border-black bg-primary text-black dark:text-white py-2.5 rounded-lg font-medium hover:bg-primary/90 transition-all shadow-sm">
+        <button  onClick={onCreateNote} className="w-full flex items-center justify-center gap-2 cursor-pointer dark:border-white border-black bg-primary text-black dark:text-white py-2.5 rounded-lg font-medium hover:bg-primary/90 transition-all shadow-sm">
           <span className="material-symbols-outlined text-sm">add</span>
           <span className="text-sm">New Note</span>
         </button>
       </div>
+
 
       {/* Notes List */}
       <div className="flex-1 overflow-y-auto px-2">
@@ -86,23 +108,72 @@ useEffect(()=>{
 
         {notes.map(note => (
           <div
-            key={note.id}
-            onClick={() => onOpenEditor?.(note.id)}
-            className="group flex flex-col gap-0.5 px-4 py-3 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
+          key={note.id}
+          className={`relative group flex items-center gap-2 px-4 py-3 rounded-lg cursor-pointer
+            ${selectMode && selectedIds.has(note.id)
+              ? "bg-primary/20"
+              : "hover:bg-gray-100 dark:hover:bg-gray-800"
+            }`}
+        >
+          {/* Selection checkbox area */}
+          {selectMode && (
+            <div
+              onClick={(e) => {
+                e.stopPropagation(); // prevent opening note
+                setSelectedIds((prev) => {
+                  const next = new Set(prev);
+                  next.has(note.id) ? next.delete(note.id) : next.add(note.id);
+                  return next;
+                });
+              }}
+              className={`w-5 h-5 flex items-center justify-center border rounded-md 
+                ${selectedIds.has(note.id) ? "bg-primary border-primary text-white" : "border-gray-400 dark:border-gray-600"}
+              `}
+            >
+              {selectedIds.has(note.id) && (
+                <span className="material-symbols-outlined text-xs dark:text-white text-black">check</span>
+              )}
+            </div>
+          )}
+
+          {/* Note content */}
+          <div
+            onClick={() => {
+              if (!selectMode) onOpenEditor?.(note.id);
+            }}
+            className="flex-1 flex flex-col"
           >
             <p className="text-sm font-medium truncate">{note.title}</p>
             <p className="text-[11px] text-gray-500">
               {new Date(note.created_at).toLocaleDateString()}
             </p>
           </div>
+        </div>
+
+           
         ))}
       </div>
       </div>
 
       {/* User Footer */}
-      <div className="p-4 border-t border-gray-100 dark:border-gray-800 flex items-center gap-3">
+      {/* <div className="p-4 border-t border-gray-100 dark:border-gray-800 flex items-center gap-3">
     <Logout />
-      </div>
+      </div> */}
+            {selectMode && (
+  <div className="px-4 mb-4">
+    <button
+      onClick={() => {
+        onDeleteMany?.(Array.from(selectedIds));
+        setSelectedIds(new Set());
+        setSelectMode(false);
+      }}
+      disabled={selectedIds.size === 0}
+      className="w-full bg-red-600 text-white py-2 rounded-lg disabled:opacity-40"
+    >
+      Delete {selectedIds.size || ""} notes
+    </button>
+  </div>
+)}
     </aside>
   );
 }
