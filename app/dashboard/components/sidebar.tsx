@@ -29,7 +29,8 @@ const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
     fixed inset-0 z-40
     w-full h-full
     md:static md:inset-auto
-    md:w-72 md:h-auto
+    md:w-72 
+    md:h-screen
     border-r border-gray-200 dark:border-gray-800
     flex flex-col
     bg-background-light dark:bg-background-dark
