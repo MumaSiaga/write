@@ -12,6 +12,8 @@ export default function Editor({ noteId, onBackToSidebar, onNoteDeleted, onTitle
   const [content, setContent] = useState("");
   const editorRef = useRef<HTMLDivElement>(null);
   const [saved, setSaved] = useState(false);
+  const [showHeader, setShowHeader] = useState(true);
+  const lastScroll = useRef(0);
   const [focusMode, setFocusMode] = useState(false);
   const titleRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -126,14 +128,34 @@ const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     lastPushedContent.current = content;
   }
 };
+useEffect(() => {
+  const handleScroll = () => {
+    const currentScroll = window.scrollY;
+    if (currentScroll > lastScroll.current && currentScroll > 50) {
+      // scrolling down → hide
+      setShowHeader(false);
+    } else {
+      // scrolling up → show
+      setShowHeader(true);
+    }
+    lastScroll.current = currentScroll;
+  };
+
+  window.addEventListener("scroll", handleScroll);
+  return () => window.removeEventListener("scroll", handleScroll);
+}, []);
 
 
 
   return (
-    <main className="flex-1 flex flex-col relative bg-background-light dark:bg-background-dark overflow-y-auto">
+    <main className="h-full flex flex-col relative bg-background-light dark:bg-background-dark overflow-y-auto">
       
       {/* Top Bar */}
-      <header className="top-2 h-16 flex items-center justify-between px-6 md:px-10 sticky top-0 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md z-10">
+      <header
+       className={`h-16 flex items-center justify-between px-6 md:px-10 bg-background-light dark:bg-background-dark z-20 transition-transform duration-300 ${
+    showHeader ? "translate-y-4" : "-translate-y-full"
+  }`}
+>  
   
         {/* Back button – mobile only */}
         <button

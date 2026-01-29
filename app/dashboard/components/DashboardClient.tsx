@@ -87,7 +87,7 @@ const handleTitleChange = (id: string, title: string) => {
 
 
 return (
-  <div className="flex h-[100dvh]">
+  <div className="flex h-[100dvh] overflow-hidden">
     {/* Sidebar */}
     <div className={`md:block ${mobileView === "sidebar" ? "block" : "hidden"}`}>
       <Sidebar
@@ -99,7 +99,8 @@ return (
     </div>
 
     {/* Editor */}
-    <div className={`flex-1 md:block ${mobileView === "editor" ? "block" : "hidden"}`}>
+    <div className={`flex-1 md:block h-full overflow-hidden ${mobileView === "editor" ? "block" : "hidden"}`}>
+
       {selectedNoteId ? (
         <Editor
           noteId={selectedNoteId}
