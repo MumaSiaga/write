@@ -126,7 +126,7 @@ const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
                   return next;
                 });
               }}
-              className={`w-5 h-5 flex items-center justify-center border rounded-md 
+              className={`flex-shrink-0 w-5 h-5 flex items-center justify-center border rounded-md 
                 ${selectedIds.has(note.id) ? "bg-primary border-primary text-white" : "border-gray-400 dark:border-gray-600"}
               `}
             >
@@ -143,7 +143,7 @@ const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
             }}
             className="flex-1 flex flex-col"
           >
-            <p className="text-sm font-medium truncate">{note.title}</p>
+            <p className="text-sm font-medium truncate overflow-hidden w-full max-w-[calc(100%-1.25rem)]">{note.title}</p>
             <p className="text-[11px] text-gray-500">
               {new Date(note.created_at).toLocaleDateString()}
             </p>
@@ -168,9 +168,9 @@ const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
         setSelectMode(false);
       }}
       disabled={selectedIds.size === 0}
-      className="w-full bg-red-600 text-white py-2 rounded-lg disabled:opacity-40"
+      className="w-full flex items-center justify-center gap-2 cursor-pointer dark:border-white border-black bg-primary text-black dark:text-white py-2.5 rounded-lg font-medium hover:bg-primary/90 transition-all shadow-sm disabled:opacity-40"
     >
-      Delete {selectedIds.size || ""} notes
+      Delete
     </button>
   </div>
 )}

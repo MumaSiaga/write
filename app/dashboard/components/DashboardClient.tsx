@@ -76,6 +76,14 @@ export default function DashboardClient() {
   setSelectedNoteId(null);
   fetchNotes();
 };
+const handleTitleChange = (id: string, title: string) => {
+  setNotes((prev) =>
+    prev.map((note) =>
+      note.id === id ? { ...note, title } : note
+    )
+  );
+};
+
 
 
 return (
@@ -97,6 +105,7 @@ return (
           noteId={selectedNoteId}
           onBackToSidebar={() => setMobileView("sidebar")}
           onNoteDeleted={handleNoteDeleted}
+          onTitleChange={handleTitleChange}
         />
       ) : (
         <div className="flex items-center justify-center h-full text-gray-400">
