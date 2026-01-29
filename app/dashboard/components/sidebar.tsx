@@ -25,7 +25,7 @@ const [selectMode, setSelectMode] = useState(false);
 const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   return (
-    <aside className="min-h-screen
+    <aside className="h-[100dvh]
     fixed inset-0 z-40
     w-full h-full
     md:static md:inset-auto
