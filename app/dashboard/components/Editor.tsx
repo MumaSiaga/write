@@ -264,10 +264,10 @@ useEffect(() => {
         </article>
       </div>
       {!focusMode && (
-  <div className="fixed bottom-8 right-10 hidden md:block dark:block">
+  <div className="fixed bottom-8 right-10 hidden md:block">
     <button
       onClick={enterFocusMode}
-      className="flex items-center gap-2 py-2 px-4 rounded-full bg-primary text-black dark:text-white shadow-md hover:bg-primary/90 transition hidden dark:block cursor-pointer"
+      className="flex items-center gap-2 py-2 px-4 rounded-full bg-primary text-black dark:text-white shadow-md hover:bg-primary/90 transition hidden md:dark:block cursor-pointer"
     >
       <span className="text-xs font-medium uppercase tracking-widest">
         Focus Mode
