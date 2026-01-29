@@ -26,14 +26,15 @@ const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   return (
     <aside 
-     className="
+  className="
     fixed inset-0 z-40
     w-full
-    h-screen h-[100dvh]
-    md:static md:inset-auto md:w-72
+    h-[100dvh]
+    md:static md:w-72
     border-r border-gray-200 dark:border-gray-800
     flex flex-col
     bg-background-light dark:bg-background-dark
+    overscroll-contain
     pb-[env(safe-area-inset-bottom)]
   "
     
